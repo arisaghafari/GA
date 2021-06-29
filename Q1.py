@@ -5,6 +5,8 @@ class GLA(object):
         self.neighbors , self.weights = graph
         self.pop_size = pop_size
         self.populations = []
+        self.fitness_list = []
+        self.optimal_result = 0
         for j in range(pop_size):
             population = []
             list_temp = [1, 2, 3, 4, 5, 6, 7]
@@ -19,9 +21,33 @@ class GLA(object):
                 else:
                     population.append(node)
                 list_temp = neighbors[node]
-
-            self.populations.append(population)
+            if len(population) == len(self.weights):
+                node = population[len(self.weights) - 1]
+                list_temp = self.neighbors[node]
+                if population[0] in list_temp:
+                    population.append(population[0])
+                    self.populations.append(population)
         print(self.populations)
+        self.fitness()
+        print(self.fitness_list)
+
+    def fitness(self):
+        for i in range(len(self.populations)):
+            prev = 0
+            distance = 0
+            for j in self.populations[i]:
+                if prev != 0:
+                    temp_list = self.neighbors[prev]
+                    for k in range(len(temp_list)):
+                        if temp_list[k] == j:
+                            distance += self.weights[prev][k]
+                            break
+
+                prev = j
+            if distance <= 63:
+                self.optimal_result = self.populations[i]
+            self.fitness_list.append(distance)
+
 
     def selection(self):
         pass
@@ -30,6 +56,9 @@ class GLA(object):
         pass
 
     def mutation(self):
+        pass
+
+    def plot(self):
         pass
 
 if __name__ == "__main__":
