@@ -7,8 +7,9 @@ class GLA(object):
         self.pop_size = pop_size
         self.populations = []
         self.fitness_list = []
-        self.optimal_result = 0
+        self.optimal_result = (0, 0)
         self.prev_fitness = []
+        self.iteration = 0
         for j in range(pop_size):
             population = []
             list_temp = [1, 2, 3, 4, 5, 6, 7]
@@ -29,15 +30,18 @@ class GLA(object):
                 if population[0] in list_temp:
                     population.append(population[0])
                     self.populations.append(population)
-        print("first population : ", self.populations)
-        self.fitness()
-        print("fitness list : ", self.fitness_list)
-        self.selection()
-        print("selected population : ", self.populations)
-        print("fitness : ", self.prev_fitness)
-        self.mutation(self.populations)
 
+        for _ in range(100):
+            flag = self.hamiltonian_cycle_test(self.populations)
+            if(self.optimal_result[0] == 0) and flag:
+                self.fitness()
+                self.selection()
+                self.populations = self.mutation(self.populations)
+                self.iteration += 1
+            else:
+                break
     def fitness(self):
+        self.prev_fitness = []
         for i in range(len(self.populations)):
             prev = 0
             distance = 0
@@ -51,7 +55,7 @@ class GLA(object):
 
                 prev = j
             if distance <= 63:
-                self.optimal_result = self.populations[i]
+                self.optimal_result= (self.populations[i], distance)
             self.prev_fitness.append(distance)
             self.fitness_list.append(distance)
 
@@ -86,8 +90,8 @@ class GLA(object):
                         break
             count += 1
 
-        print("new population : ", new_population)
-        print("change flag : ", flag_list)
+        # print("new population : ", new_population)
+        # print("change flag : ", flag_list)
         return new_population
 
     def swap(self, p_list, pos1, pos2):
@@ -96,8 +100,12 @@ class GLA(object):
         p_list[pos2] = temp
         return p_list
 
-    def plot(self):
-        pass
+    def hamiltonian_cycle_test(self, populations):
+        for population in populations:
+            for i in range(len(population) - 1):
+                if not(population[i + 1] in self.neighbors[population[i]]):
+                    return False
+        return True
 
 if __name__ == "__main__":
     neighbors = {1: [2, 3, 7], 2:[1, 3, 4], 3:[1, 2, 4, 5, 7], 4:[2, 3, 5, 6], 5:[3, 4, 6, 7], 6:[4, 5, 7], 7:[1, 3, 5, 6]}
@@ -105,9 +113,5 @@ if __name__ == "__main__":
     graph = (neighbors, weights)
     pop_size = 20
     gla = GLA(graph, pop_size)
-    while gla.optimal_result == 0:
-        # gla.populations = gla.mutation(gla.populations)
-        print("while : ")
-        break
     print("optimal result : ", gla.optimal_result)
 
