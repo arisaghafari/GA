@@ -7,6 +7,7 @@ class GLA(object):
         self.populations = []
         self.fitness_list = []
         self.optimal_result = 0
+        self.prev_fitness = []
         for j in range(pop_size):
             population = []
             list_temp = [1, 2, 3, 4, 5, 6, 7]
@@ -30,6 +31,9 @@ class GLA(object):
         print(self.populations)
         self.fitness()
         print(self.fitness_list)
+        self.selection()
+        print(self.populations)
+        print(self.prev_fitness)
 
     def fitness(self):
         for i in range(len(self.populations)):
@@ -46,11 +50,20 @@ class GLA(object):
                 prev = j
             if distance <= 63:
                 self.optimal_result = self.populations[i]
+            self.prev_fitness.append(distance)
             self.fitness_list.append(distance)
 
+    def selection(self):  # using generation gap approach
+        num_select = 6
+        delete_num = len(self.populations) - num_select
 
-    def selection(self): #using generation gap approach
-        pass
+        for i in range(delete_num):
+            for j in range(len(self.prev_fitness)):
+                max_value = max(self.prev_fitness)
+                if self.prev_fitness[j] == max_value:
+                    del self.prev_fitness[j]
+                    del self.populations[j]
+                    break
 
     def cross_over(self):
         pass
@@ -65,6 +78,10 @@ if __name__ == "__main__":
     neighbors = {1: [2, 3, 7], 2:[1, 3, 4], 3:[1, 2, 4, 5, 7], 4:[2, 3, 5, 6], 5:[3, 4, 6, 7], 6:[4, 5, 7], 7:[1, 3, 5, 6]}
     weights = {1: [12, 10, 12], 2:[12, 8, 12], 3:[10, 8, 11, 3, 9], 4:[12, 11, 11, 10], 5:[3, 11, 6, 7], 6:[10, 6, 9], 7:[12, 9, 7, 9]}
     graph = (neighbors, weights)
-    pop_size = 10
+    pop_size = 20
     gla = GLA(graph, pop_size)
+    while gla.optimal_result == 0:
+        gla.cross_over()
+        break
+    print("optimal result : ", gla.optimal_result)
 
