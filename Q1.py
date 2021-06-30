@@ -1,4 +1,5 @@
 import random
+import numpy as np
 
 class GLA(object):
     def __init__(self, graph, pop_size):
@@ -28,12 +29,13 @@ class GLA(object):
                 if population[0] in list_temp:
                     population.append(population[0])
                     self.populations.append(population)
-        print(self.populations)
+        print("first population : ", self.populations)
         self.fitness()
-        print(self.fitness_list)
+        print("fitness list : ", self.fitness_list)
         self.selection()
-        print(self.populations)
-        print(self.prev_fitness)
+        print("selected population : ", self.populations)
+        print("fitness : ", self.prev_fitness)
+        self.mutation(self.populations)
 
     def fitness(self):
         for i in range(len(self.populations)):
@@ -68,8 +70,31 @@ class GLA(object):
     def cross_over(self):
         pass
 
-    def mutation(self):
-        pass
+    def mutation(self, old_populations):
+        flag_list = np.zeros(len(old_populations))
+        new_population = []
+        count = 0
+        for p in old_populations:
+            for i in range(1, len(p) - 2):
+                prev = p[i - 1]
+                subsequence = p[i + 2]
+                if (prev in self.neighbors[p[i]]) and (subsequence in self.neighbors[p[i]]):
+                    if (prev in self.neighbors[p[i + 1]]) and (subsequence in self.neighbors[p[i + 1]]):
+                        p = self.swap(p, i, i + 1)
+                        new_population.append(p)
+                        flag_list[count] += 1
+                        break
+            count += 1
+
+        print("new population : ", new_population)
+        print("change flag : ", flag_list)
+        return new_population
+
+    def swap(self, p_list, pos1, pos2):
+        temp = p_list[pos1]
+        p_list[pos1] = p_list[pos2]
+        p_list[pos2] = temp
+        return p_list
 
     def plot(self):
         pass
@@ -81,7 +106,8 @@ if __name__ == "__main__":
     pop_size = 20
     gla = GLA(graph, pop_size)
     while gla.optimal_result == 0:
-        gla.cross_over()
+        # gla.populations = gla.mutation(gla.populations)
+        print("while : ")
         break
     print("optimal result : ", gla.optimal_result)
 
