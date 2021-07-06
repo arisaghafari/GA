@@ -1,7 +1,7 @@
 import random
 import numpy as np
 
-class GLA(object):
+class GA(object):
     def __init__(self, graph, pop_size):
         self.neighbors , self.weights = graph
         self.pop_size = pop_size
@@ -110,6 +110,6 @@ if __name__ == "__main__":
     weights = {1: [12, 10, 12], 2:[12, 8, 12], 3:[10, 8, 11, 3, 9], 4:[12, 11, 11, 10], 5:[3, 11, 6, 7], 6:[10, 6, 9], 7:[12, 9, 7, 9]}
     graph = (neighbors, weights)
     pop_size = 40
-    gla = GLA(graph, pop_size)
-    print("optimal result : ", gla.optimal_result)
+    ga = GA(graph, pop_size)
+    print("optimal result : ", ga.optimal_result)
 
