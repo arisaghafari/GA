@@ -1,7 +1,7 @@
 import random
 import numpy as np
 
-class GLA(object):
+class GA(object):
     def __init__(self, graph, pop_size):
         self.neighbors , self.weights = graph
         self.pop_size = pop_size
@@ -32,13 +32,14 @@ class GLA(object):
                     self.populations.append(population)
 
         for _ in range(100):
-            flag = self.hamiltonian_cycle_test(self.populations)
+            flag = self.cycle_test(self.populations)
             if(self.optimal_result[0] == 0) and flag:
                 self.fitness()
                 self.selection()
-                self.populations = self.mutation(self.populations)
+                self.populations, flag_list = self.mutation(self.populations, self.iteration + 1)
                 self.iteration += 1
             else:
+                print("iteration : ", self.iteration)
                 break
     def fitness(self):
         self.prev_fitness = []
@@ -55,7 +56,7 @@ class GLA(object):
 
                 prev = j
             if distance <= 63:
-                self.optimal_result= (self.populations[i], distance)
+                self.optimal_result = (self.populations[i], distance)
             self.prev_fitness.append(distance)
             self.fitness_list.append(distance)
 
@@ -71,28 +72,25 @@ class GLA(object):
                     del self.populations[j]
                     break
 
-    def cross_over(self):
-        pass
+    def mutation(self, old_populations, num):
+        for n in range(num):
+            flag_list = np.zeros(len(old_populations))
+            new_population = []
+            count = 0
+            for p in old_populations:
+                for i in range(1, len(p) - 1 - num - n):
+                    prev = p[i - 1]
+                    subsequence = p[i + 1 + num - n]
+                    if (prev in self.neighbors[p[i]]) and (subsequence in self.neighbors[p[i]]):
+                        if (prev in self.neighbors[p[i + num - n]]) and (subsequence in self.neighbors[p[i + num - n]]):
+                            p = self.swap(p, i, i + 1)
+                            new_population.append(p)
+                            flag_list[count] += 1
+                            break
+                count += 1
+            old_populations = new_population
 
-    def mutation(self, old_populations):
-        flag_list = np.zeros(len(old_populations))
-        new_population = []
-        count = 0
-        for p in old_populations:
-            for i in range(1, len(p) - 2):
-                prev = p[i - 1]
-                subsequence = p[i + 2]
-                if (prev in self.neighbors[p[i]]) and (subsequence in self.neighbors[p[i]]):
-                    if (prev in self.neighbors[p[i + 1]]) and (subsequence in self.neighbors[p[i + 1]]):
-                        p = self.swap(p, i, i + 1)
-                        new_population.append(p)
-                        flag_list[count] += 1
-                        break
-            count += 1
-
-        # print("new population : ", new_population)
-        # print("change flag : ", flag_list)
-        return new_population
+        return new_population, flag_list
 
     def swap(self, p_list, pos1, pos2):
         temp = p_list[pos1]
@@ -100,7 +98,7 @@ class GLA(object):
         p_list[pos2] = temp
         return p_list
 
-    def hamiltonian_cycle_test(self, populations):
+    def cycle_test(self, populations):
         for population in populations:
             for i in range(len(population) - 1):
                 if not(population[i + 1] in self.neighbors[population[i]]):
@@ -111,7 +109,7 @@ if __name__ == "__main__":
     neighbors = {1: [2, 3, 7], 2:[1, 3, 4], 3:[1, 2, 4, 5, 7], 4:[2, 3, 5, 6], 5:[3, 4, 6, 7], 6:[4, 5, 7], 7:[1, 3, 5, 6]}
     weights = {1: [12, 10, 12], 2:[12, 8, 12], 3:[10, 8, 11, 3, 9], 4:[12, 11, 11, 10], 5:[3, 11, 6, 7], 6:[10, 6, 9], 7:[12, 9, 7, 9]}
     graph = (neighbors, weights)
-    pop_size = 20
-    gla = GLA(graph, pop_size)
-    print("optimal result : ", gla.optimal_result)
+    pop_size = 40
+    ga = GA(graph, pop_size)
+    print("optimal result : ", ga.optimal_result)
 
